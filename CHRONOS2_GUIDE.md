@@ -255,9 +255,12 @@ pipeline = Chronos2Pipeline.from_pretrained(
 
 # 2. 데이터 준비
 # DataFrame 형식
+timestamps_a = pd.date_range('2020-01-01', periods=100)
+timestamps_b = pd.date_range('2020-01-01', periods=100)
+
 context_df = pd.DataFrame({
     'id': ['A'] * 100 + ['B'] * 100,
-    'timestamp': pd.date_range('2020-01-01', periods=100).tolist() * 2,
+    'timestamp': timestamps_a.tolist() + timestamps_b.tolist(),
     'target': torch.rand(200).tolist(),
     'temperature': torch.rand(200).tolist(),  # 공변량
 })
@@ -369,11 +372,18 @@ print(f"Predicted classes: {predicted_classes}")
 
 **A**: 네, Chronos-2는 단변량, 다변량, 공변량을 포함한 예측을 모두 지원합니다. 입력 데이터를 딕셔너리 형식으로 제공하면 됩니다.
 
-### Q4: Fine-tuning 후 모델을 저장하려면?
+### Q4: Fine-tuning 후 모델을 저장하고 다시 로드하려면?
 
-**A**: `output_dir` 파라미터를 지정하면 체크포인트가 자동으로 저장됩니다. 또는:
+**A**: `output_dir` 파라미터를 지정하면 체크포인트가 자동으로 저장됩니다. 수동으로 저장하거나 다시 로드하려면:
 ```python
+# 저장
 finetuned_pipeline.model.save_pretrained("./my_finetuned_model")
+
+# 다시 로드
+reloaded_pipeline = Chronos2Pipeline.from_pretrained(
+    "./my_finetuned_model",
+    device_map="cuda"
+)
 ```
 
 ---
